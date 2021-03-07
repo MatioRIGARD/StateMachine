@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hierachical example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+
+    <h1>This example structure</h1>
+
+    <img src="stateMachineDrawing.png" style="width: 50%;">
+
+    <p>This example is following the state machine drawn on the picture above.</p>
+    <p>States can contain others, like "state1" contains "state2" and "state7".</p>
+    <p>"h1" and "h2" are history states and are used to recover from an interruption.</p>
+    <p>You can use a transition like the "bp3" transition to transit from a state to enter another step. In this case, when you enter the history state "h1", you go back to the state you were when you emited the "bp3" signal.</p>
+
+    <p></p>
+
+    <h1>Test me!</h1>
+
+    <p>Watch the console to see every states leaved or entered</p>
+
+    <p><button id="bp1">bp1</button></p>
+    <p><button id="bp2">bp2</button></p>
+    <p><button id="bp3">bp3</button></p>
+    <p>Last exited state: <b id="exitedState"></b></p>
+    <p>Last entered state: <b id="enteredState"></b></p>
+
+    <script src="StateMachine.js"></script>
+    <script>
+
+      // this class is just used to emit a signal when a button is clicked.
+      class Button {
+        constructor(buttonId) {
+          this.clickedSignal = Signal.create("clickedSignal");
+
+          $("#"+buttonId).click(this.clicked.bind(this));
+        };
+
+        clicked() {
+          this.clickedSignal.emit(this, null);
+        }
+      }
+
+      let bp1 = new Button("bp1");
+      let bp2 = new Button("bp2");
+      let bp3 = new Button("bp3");
+
+
+      let state1 = new State();
+      let state2 = new State(state1);
+      let state3 = new State();
+      let state4 = new State(state2);
+      let state5 = new State(state2);
+      let state6 = new State(state2);
+      let state7 = new State(state1);
+      let state8 = new State(state1);
+      let state9 = new State(state3);
+      let state10 = new State(state3);
+      let state11 = new State(state3);
+
+      let h1 = new HistoryState(state1);
+      let h2 = new HistoryState(state2);
+
+      // bp1 transitions
+      state4.addTransition(bp1, bp1.clickedSignal, state5);
+      state5.addTransition(bp1, bp1.clickedSignal, state6);
+      state6.addTransition(bp1, bp1.clickedSignal, state4);
+
+      state9.addTransition(bp1, bp1.clickedSignal, state10);
+      state10.addTransition(bp1, bp1.clickedSignal, state11);
+      state11.addTransition(bp1, bp1.clickedSignal, h1);
+
+      state7.addTransition(bp1, bp1.clickedSignal, state8);
+      state8.addTransition(bp1, bp1.clickedSignal, h2);
+
+      // bp2 transitions
+      state2.addTransition(bp2, bp2.clickedSignal, state7);
+
+      // bp3 transitions
+      state1.addTransition(bp3, bp3.clickedSignal, state3);
+
+      let myStateMachine = new StateMachine();
+
+      myStateMachine.addState(state1);
+      myStateMachine.addState(state3);
+
+      state1.setInitialState(state2);
+      state2.setInitialState(state4);
+      state3.setInitialState(state9);
+
+      myStateMachine.setInitialState(state1);
+
+
+      // used to connect signals to slots and display which state we leave and which state we enter
+      class Debug {
+        constructor() {
+
+        };
+
+        entered(object, data) {
+          let name = object.getName();
+          if(name == null) {
+            console.log("Entered (id) : " + str(object.getId()));
+            document.getElementById("enteredState").innerHTML = object.getId();
+          }
+          else {
+            console.log("Entered (name) : " + name);
+            document.getElementById("enteredState").innerHTML = name;
+          }
+        };
+
+        exited(object, data) {
+          let name = object.getName();
+          if(name == null) {
+            console.log("Exited (id) : " + str(object.getId()));
+            document.getElementById("exitedState").innerHTML = object.getId();
+          }
+          else {
+            console.log("Exited (name) : " + name);
+            document.getElementById("exitedState").innerHTML = name;
+          }
+        };
+      }
+
+      let debug = new Debug();
+
+      // connect signals of states to events
+      state1.sEntered.connect(debug.entered, debug);
+      state2.sEntered.connect(debug.entered, debug);
+      state3.sEntered.connect(debug.entered, debug);
+      state4.sEntered.connect(debug.entered, debug);
+      state5.sEntered.connect(debug.entered, debug);
+      state6.sEntered.connect(debug.entered, debug);
+      state7.sEntered.connect(debug.entered, debug);
+      state8.sEntered.connect(debug.entered, debug);
+      state9.sEntered.connect(debug.entered, debug);
+      state10.sEntered.connect(debug.entered, debug);
+      state11.sEntered.connect(debug.entered, debug);
+
+
+      state1.sExited.connect(debug.exited, debug);
+      state2.sExited.connect(debug.exited, debug);
+      state3.sExited.connect(debug.exited, debug);
+      state4.sExited.connect(debug.exited, debug);
+      state5.sExited.connect(debug.exited, debug);
+      state6.sExited.connect(debug.exited, debug);
+      state7.sExited.connect(debug.exited, debug);
+      state8.sExited.connect(debug.exited, debug);
+      state9.sExited.connect(debug.exited, debug);
+      state10.sExited.connect(debug.exited, debug);
+      state11.sExited.connect(debug.exited, debug);
+
+
+      // set states name
+      state1.setName("state1");
+      state2.setName("state2");
+      state3.setName("state3");
+      state4.setName("state4");
+      state5.setName("state5");
+      state6.setName("state6");
+      state7.setName("state7");
+      state8.setName("state8");
+      state9.setName("state9");
+      state10.setName("state10");
+      state11.setName("state11");
+
+      // start State Machine...
+      myStateMachine.start();
+
+      // https://www.npmjs.com/package/signals-slots
+      // https://github.com/yeliu84/signal.js
+      // http://plnkr.co/edit/pGs57j?p=preview&preview
+
+    </script>
+  </body>
+</html>
