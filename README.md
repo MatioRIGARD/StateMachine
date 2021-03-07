@@ -28,9 +28,9 @@ I tried xstate you can find here that seemed to be a good thing:
 https://xstate.js.org/
 
 But:
--It seemed too hard and strange to use to me.
--It looked difficult to edit dynamicly.
--The hierachy functionality seemed less robust and less powerful than the Qt one.
+* It seemed too hard and strange to use for me.
+* It looked difficult to edit dynamicly.
+* The hierachy functionality seemed less robust and less powerful than the Qt one.
 
 I found other libs but they doesn't seemed to support hierarchy.
 
@@ -126,7 +126,7 @@ myStateMachine.start();
 
 ## Example
 
-You can find a complete example for this state machine in the file `example.html` in the framework folder for this state machine:
+You can find a complete example in the file `example.html` from the framework folder for this state machine:
 
 ![StateMachine example](https://github.com/MatioRIGARD/StateMachine/blob/master/stateMachineDrawing.png)
 
