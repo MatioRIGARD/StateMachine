@@ -11,16 +11,11 @@
 
     <img src="stateMachineDrawing.png" style="width: 50%;">
 
-    <p>This example is following the state machine drawn on the picture above.</p>
-    <p>States can contain others, like "state1" contains "state2" and "state7".</p>
-    <p>"h1" and "h2" are history states and are used to recover from an interruption.</p>
-    <p>You can use a transition like the "bp3" transition to transit from a state to enter another step. In this case, when you enter the history state "h1", you go back to the state you were when you emited the "bp3" signal.</p>
-
-    <p></p>
+    <p>This example follow the state machine drawn on the picture above.</p>
 
     <h1>Test me!</h1>
 
-    <p>Watch the console to see every states leaved or entered</p>
+    <p>Watch the console to see every states leaved or entered.</p>
 
     <p><button id="bp1">bp1</button></p>
     <p><button id="bp2">bp2</button></p>
@@ -154,7 +149,7 @@
       state11.sExited.connect(debug.exited, debug);
 
 
-      // set states name
+      // set states name for debug
       state1.setName("state1");
       state2.setName("state2");
       state3.setName("state3");
