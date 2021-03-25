@@ -3,11 +3,28 @@ class StateMachine {
 	
 	constructor() {
 		this.id = IdGen.getNewId();
+		this.name = null;
 		this.states = [];
 		this.initialState = null;
 		this.previousState = null;
 		this.currentState = null;
 		this.running = false;
+	};
+
+	setId(id) {
+		this.id = id;
+	};
+
+	getId() {
+		return this.id;
+	};
+
+	setName(name) {
+		this.name = name;
+	};
+
+	getName() {
+		return this.name;
 	};
 
 	// set
@@ -86,8 +103,6 @@ class StateMachine {
 			for(const element in children) {
 				children[element].entered();
 				this.currentState = children[element];
-				//console.log("Enter state:")
-				//console.log(this.currentState.getId());
 			}
 		}
 
@@ -125,8 +140,6 @@ class StateMachine {
 
 
 
-
-
 class State {
 	constructor(parent = null) {
 
@@ -137,6 +150,8 @@ class State {
 		// signals
 		this.sEntered = Signal.create("sEntered");
 		this.sExited = Signal.create("sExited");
+		this.onEnteredSignalAttributes = [];
+		this.onExitedSignalAttributes = [];
 
 		// hierarchy
 		this.parent = parent;
@@ -150,12 +165,28 @@ class State {
 	};
 
 	// set
-	addTransition(sender, signal, nextState) {
-		this.transitions.push(new Transition(sender, signal, nextState));
+	addTransition(sender, signal, nextState, id=null) {
+		this.transitions.push(new Transition(sender, signal, nextState, id));
 	};
 
 	setName(name) {
 		this.name = name;
+	};
+
+	setId(id) {
+		this.id = id;
+	};
+
+	setParent(parent) {
+		this.parent = parent;
+	};
+
+	setOnEnteredSignalAttributes(attributes) {
+		this.onEnteredSignalAttributes.push(attributes);
+	};
+
+	setOnExitedSignalAttributes(attributes) {
+		this.onExitedSignalAttributes.push(attributes);
 	};
 
 	// getters
@@ -175,19 +206,34 @@ class State {
 		return this.transitionSignal;
 	};
 
+	getOnEnteredSignalAttributes() {
+		return this.onEnteredSignalAttributes;
+	};
+
+	getOnExitedSignalAttributes() {
+		return this.onExitedSignalAttributes;
+	};
+
+	//signals
 	entered() {
+		console.log("entered "+this.name);
 		this.updateHistory();
-		this.sEntered.emit(this, null);
+
+		for(let attribute in this.onEnteredSignalAttributes) {
+			this.sEntered.emit(this, this.onEnteredSignalAttributes[attribute]);
+		}
 	};
 
 	exited() {
-		this.sExited.emit(this, null); 
+		console.log("exited "+this.name);
+		//console.log("exited "+this.id.id.toString());
+		for(let attribute in this.onExitedSignalAttributes) {
+			this.sExited.emit(this, this.onExitedSignalAttributes[attribute]);
+		}
 	};
 
-
-
 	// hierarchical
-	getInitialState(state) {
+	getInitialState() {
 		return this.initialState;
 	};
 
@@ -271,15 +317,40 @@ class State {
 
 class HistoryState {
 
-	constructor(state) {
+	constructor(state = null) {
 		this.id = IdGen.getNewId();
-		this.state = state;  // history of this state
-		this.currentState = state.getInitialState();
-		this.state.setHistory(this);
+		this.name = null;
+		this.state = null;  // history of this state
+		this.currentState = null;
+		if(state != null) {
+			this.setState(state);
+		}
 	};
 
 	updateCurrentState(state) {
 		this.currentState = state;
+	};
+
+	setState(state) {
+		this.state = state;
+		this.currentState = this.state.getInitialState();
+		this.state.setHistory(this);
+	}
+
+	setId(id) {
+		this.id = id;
+	};
+
+	getId() {
+		return this.id;
+	};
+
+	setName(name) {
+		this.name = name;
+	};
+
+	getName() {
+		return this.name;
 	};
 
 	getMemorisedState() {
@@ -291,16 +362,27 @@ class HistoryState {
 
 
 class Transition {
-	constructor(sender=null, signal=null, nextState=null) {
+	constructor(sender=null, signal=null, nextState=null, id=null) {
 		this.sender = sender;
 		this.signal = signal;
 		this.nextState = nextState;
+		if(id == null) this.id = IdGen.getNewId();
+		else this.id = id;
 	};
 
-	setTransition(sender, signal, nextState) {
+	setTransition(sender, signal, nextState, id=null) {
 		this.sender = sender;
 		this.signal = signal;
 		this.nextState = nextState;
+		if(id != null) this.id = id;
+	};
+
+	setId(id) {
+		this.id = id;
+	};
+
+	getId() {
+		return this.id;
 	};
 
 	getSender() {
@@ -315,6 +397,8 @@ class Transition {
 		return this.nextState;
 	};
 }
+
+
 
 class IdGen {
 	static lastId = 0;
